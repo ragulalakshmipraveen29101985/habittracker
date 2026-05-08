@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Streak",
+    "slug": "streak",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "streak",
+    "newArchEnabled": false,
+    "splash": {
+      "backgroundColor": "#F4EFE6",
+      "resizeMode": "contain"
+    },
+    "ios": { "supportsTablet": true, "bundleIdentifier": "com.streak.app" },
+    "android": { "package": "com.streak.app" },
+    "web": { "bundler": "metro" }
+  }
+}

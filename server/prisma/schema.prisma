@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  phone     String    @unique
+  firstName String?
+  lastName  String?
+  email     String?
+  name      String?
+  createdAt DateTime  @default(now())
+  trackers  Tracker[]
+}
+
+model OtpCode {
+  id         String    @id @default(uuid())
+  phone      String
+  codeHash   String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  attempts   Int       @default(0)
+  createdAt  DateTime  @default(now())
+
+  @@index([phone, expiresAt])
+}
+
+model Tracker {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  emoji      String
+  accent     String
+  position   Int       @default(0)
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  habits     Habit[]
+
+  @@index([userId, archivedAt])
+}
+
+model Habit {
+  id          String       @id @default(uuid())
+  trackerId   String
+  tracker     Tracker      @relation(fields: [trackerId], references: [id], onDelete: Cascade)
+  name        String
+  position    Int          @default(0)
+  createdAt   DateTime     @default(now())
+  completions Completion[]
+
+  @@index([trackerId])
+}
+
+model Completion {
+  id        String   @id @default(uuid())
+  habitId   String
+  habit     Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  @@unique([habitId, date])
+  @@index([habitId, date])
+}

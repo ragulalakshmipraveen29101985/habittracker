@@ -1,0 +1,13 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "paths": {
+      "@streak/shared": ["../shared/src/index.ts"],
+      "@streak/shared/*": ["../shared/src/*"]
+    }
+  },
+  "include": ["App.tsx", "src/**/*", "../shared/src/**/*"]
+}

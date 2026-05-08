@@ -8,12 +8,12 @@ export const colors = {
   line: "#E2DACA",
   lineStrong: "#C9BFA9",
   navy: "#1E2740",
-  navy2: "#2A3556",
-  sage: "#7C9A6B",
-  sageDeep: "#5F7E50",
-  sageSoft: "#D9E3CD",
-  coral: "#C97C5D",
-  coralSoft: "#F4DDD2",
+  navy2: "#2A2A2A",
+  sage: "#E63946",
+  sageDeep: "#D40000",
+  sageSoft: "#FCDCDC",
+  coral: "#8B1A1A",
+  coralSoft: "#FCDCDC",
   amber: "#C9A24A",
 } as const;
 
@@ -33,23 +33,23 @@ export const radii = {
 
 export type AccentName = "sage" | "coral" | "navy";
 
-export const accentColor = (a: AccentName | string | undefined): string => {
+export const accentColor = (a: AccentName | string | undefined, cssVar = false): string => {
   switch (a) {
     case "sage":
-      return colors.sageDeep;
+      return cssVar ? "var(--sage-deep)" : colors.sageDeep;
     case "coral":
       return colors.coral;
     case "navy":
       return colors.navy2;
     default:
-      return colors.sageDeep;
+      return cssVar ? "var(--sage-deep)" : colors.sageDeep;
   }
 };
 
 export const ACCENT_OPTIONS: { id: AccentName; color: string; label: string }[] = [
-  { id: "sage", color: colors.sageDeep, label: "Sage" },
-  { id: "coral", color: colors.coral, label: "Coral" },
-  { id: "navy", color: colors.navy2, label: "Navy" },
+  { id: "sage", color: colors.sageDeep, label: "Theme" },
+  { id: "coral", color: colors.coral, label: "Bordeaux" },
+  { id: "navy", color: colors.navy2, label: "Charcoal" },
 ];
 
 export const EMOJI_OPTIONS = ["☼", "◐", "✦", "❀", "♕", "✿", "△", "◇", "♥", "✱"];

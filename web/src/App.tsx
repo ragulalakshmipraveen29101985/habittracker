@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "./state/AuthContext";
+import { ThemeProvider } from "./state/ThemeContext";
 import { Login } from "./screens/Login";
 import { Dashboard } from "./screens/Dashboard";
 import { TrackerDetail } from "./screens/TrackerDetail";
@@ -33,8 +34,10 @@ function Routed() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Routed />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Routed />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

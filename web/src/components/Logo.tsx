@@ -1,7 +1,7 @@
 export function Logo({ size = 22, dark = false }: { size?: number; dark?: boolean }) {
-  const fill = dark ? "var(--paper)" : "var(--ink)";
-  const stroke = dark ? "var(--paper)" : "var(--ink)";
-  const accent = dark ? "var(--sage)" : "var(--sage-deep)";
+  const fill = dark ? "var(--paper)" : "var(--bg-text)";
+  const stroke = dark ? "var(--paper)" : "var(--bg-text)";
+  const accent = dark ? "var(--sage)" : "var(--ink)";
   return (
     <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -12,7 +12,7 @@ export function Logo({ size = 22, dark = false }: { size?: number; dark?: boolea
       </svg>
       <span className="serif" style={{
         fontSize: size + 4, lineHeight: 1, letterSpacing: "-0.01em",
-        color: dark ? "var(--paper)" : "var(--ink)",
+        color: dark ? "var(--paper)" : "var(--bg-text)",
       }}>Streak</span>
     </div>
   );

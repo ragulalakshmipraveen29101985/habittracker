@@ -28,7 +28,7 @@ export function TrackerDetail() {
 
   const days = useMemo(() => buildMonthDays(year, monthIdx), [year, monthIdx]);
   const weeks = useMemo(() => groupIntoWeeks(days), [days]);
-  const ac = useMemo(() => accentColor(tracker?.accent), [tracker]);
+  const ac = useMemo(() => accentColor(tracker?.accent, true), [tracker]);
   const sameMonth = isCurrentMonth(year, monthIdx);
   const todayDay = sameMonth ? today.getDate() : null;
 
@@ -144,14 +144,14 @@ export function TrackerDetail() {
 
   if (loading && !tracker) {
     return (
-      <div style={{ minHeight: "100vh", background: "var(--cream)", padding: 40 }}>
-        <p style={{ color: "var(--ink-mute)" }}>Loading…</p>
+      <div style={{ minHeight: "100vh", background: "var(--bg)", padding: 40 }}>
+        <p style={{ color: "var(--bg-text-mute)" }}>Loading…</p>
       </div>
     );
   }
   if (!tracker) {
     return (
-      <div style={{ minHeight: "100vh", background: "var(--cream)", padding: 40 }}>
+      <div style={{ minHeight: "100vh", background: "var(--bg)", padding: 40 }}>
         <p>Tracker not found.</p>
         <Button kind="ghost" size="sm" icon="back" onClick={() => nav("/")}>Back</Button>
       </div>
@@ -278,11 +278,11 @@ function Body({
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--cream)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <header className="trk-header">
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <Button kind="ghost" size="sm" icon="back" onClick={onBack}>Trackers</Button>
-          <div style={{ width: 1, height: 22, background: "var(--line-strong)" }} />
+          <Button kind="ghost" size="sm" icon="back" onClick={onBack} style={{ color: "var(--bg-text)" }}>Trackers</Button>
+          <div style={{ width: 1, height: 22, background: "var(--bg-line-strong)" }} />
           <span style={{
             width: 26, height: 26, borderRadius: 7, display: "grid", placeItems: "center",
             background: ac, color: "var(--paper)", fontSize: 13,
@@ -300,8 +300,8 @@ function Body({
               className="serif"
               style={{
                 fontSize: 22, background: "transparent", border: "none",
-                outline: "1px solid var(--line-strong)", outlineOffset: 4,
-                borderRadius: 4, padding: 0, color: "var(--ink)", width: 320,
+                outline: "1px solid var(--bg-line-strong)", outlineOffset: 4,
+                borderRadius: 4, padding: 0, color: "var(--bg-text)", width: 320,
               }}
             />
           ) : (
@@ -332,7 +332,7 @@ function Body({
 
         <div style={{ display: "flex", gap: 8 }}>
           {todayDay && (
-            <Button kind="ghost" size="sm" onClick={() => {
+            <Button kind="ghost" size="sm" style={{ color: "var(--bg-text)" }} onClick={() => {
               const el = document.querySelector(`[data-day="${todayDay}"]`) as HTMLElement | null;
               const scroller = el?.closest("[data-grid-scroll]") as HTMLElement | null;
               if (el && scroller) {
@@ -341,7 +341,7 @@ function Body({
               }
             }}>Today</Button>
           )}
-          <Button kind="secondary" size="sm" icon="plus" onClick={() => setShowAdd(true)}>Add habit</Button>
+          <Button kind="secondary" size="sm" icon="plus" style={{ color: "var(--bg-text)", borderColor: "var(--bg-line-strong)" }} onClick={() => setShowAdd(true)}>Add habit</Button>
         </div>
       </header>
 
@@ -442,10 +442,10 @@ function SectionLabel({ kicker, title, hint }: { kicker: string; title: string; 
   return (
     <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
-        <span className="mono" style={{ fontSize: 10.5, color: "var(--ink-mute)", letterSpacing: 1.2, textTransform: "uppercase" }}>{kicker}</span>
+        <span className="mono" style={{ fontSize: 10.5, color: "var(--bg-text-mute)", letterSpacing: 1.2, textTransform: "uppercase" }}>{kicker}</span>
         <h3 className="serif" style={{ fontSize: 22, margin: 0, letterSpacing: "-0.01em" }}>{title}</h3>
       </div>
-      {hint && <span className="trk-section-label-hint" style={{ fontSize: 12.5, color: "var(--ink-mute)" }}>{hint}</span>}
+      {hint && <span className="trk-section-label-hint" style={{ fontSize: 12.5, color: "var(--bg-text-mute)" }}>{hint}</span>}
     </div>
   );
 }

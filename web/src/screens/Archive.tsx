@@ -50,11 +50,11 @@ export function Archive() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--cream)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <header className="dash-header">
         <Logo size={20} />
         <div style={{ display: "flex", gap: 22, fontSize: 13.5 }}>
-          <Button kind="ghost" size="sm" icon="back" onClick={() => nav("/")}>Trackers</Button>
+          <Button kind="ghost" size="sm" icon="back" style={{ color: "var(--bg-text)" }} onClick={() => nav("/")}>Trackers</Button>
         </div>
         <div style={{ width: 32 }} />
       </header>
@@ -62,33 +62,33 @@ export function Archive() {
       <div className="dash-content" style={{ maxWidth: 760 }}>
         <p className="mono" style={{
           fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase",
-          color: "var(--ink-mute)", margin: 0,
+          color: "var(--bg-text-mute)", margin: 0,
         }}>
           Archive
         </p>
         <h1 className="serif" style={{ fontSize: 40, lineHeight: 1.05, margin: "8px 0 4px", letterSpacing: "-0.02em" }}>
           Trackers you've <span className="it">set aside</span>.
         </h1>
-        <p style={{ color: "var(--ink-soft)", margin: "0 0 24px", fontSize: 14.5 }}>
+        <p style={{ color: "var(--bg-text-soft)", margin: "0 0 24px", fontSize: 14.5 }}>
           Restore one to bring it back, or remove it for good.
         </p>
 
         {err && (
           <div style={{
-            color: "var(--coral)", fontSize: 13, marginBottom: 14,
-            padding: "8px 12px", border: "1px solid var(--line)", borderRadius: 8,
+            color: "#FFE0E0", fontSize: 13, marginBottom: 14,
+            padding: "8px 12px", border: "1px solid var(--bg-line)", borderRadius: 8,
           }}>{err}</div>
         )}
 
         {loading ? (
-          <p style={{ color: "var(--ink-mute)" }}>Loading…</p>
+          <p style={{ color: "var(--bg-text-mute)" }}>Loading…</p>
         ) : items.length === 0 ? (
           <div style={{
-            border: "1.5px dashed var(--line-strong)", borderRadius: 14,
-            padding: 28, textAlign: "center", color: "var(--ink-soft)",
+            border: "1.5px dashed var(--bg-line-strong)", borderRadius: 14,
+            padding: 28, textAlign: "center", color: "var(--bg-text-soft)",
           }}>
             <div className="serif" style={{ fontSize: 22, marginBottom: 6 }}>Nothing archived yet.</div>
-            <div style={{ fontSize: 13, color: "var(--ink-mute)" }}>
+            <div style={{ fontSize: 13, color: "var(--bg-text-mute)" }}>
               Trackers you archive will appear here.
             </div>
           </div>
@@ -116,7 +116,7 @@ function ArchiveRow({
   onUnarchive: () => void;
   onDelete: () => void;
 }) {
-  const ac = accentColor(tracker.accent);
+  const ac = accentColor(tracker.accent, true);
   const archivedRel = relativeTime(tracker.archivedAt);
   return (
     <article style={{

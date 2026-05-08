@@ -8,12 +8,19 @@
   --line: #E2DACA;
   --line-strong: #C9BFA9;
   --navy: #1E2740;
-  --navy-2: #2A3556;
-  --sage: #7C9A6B;
-  --sage-deep: #5F7E50;
-  --sage-soft: #D9E3CD;
-  --coral: #C97C5D;
+  --navy-2: #2A2A2A;
+  --sage: #E63946;
+  --sage-deep: #D40000;
+  --sage-soft: #FCDCDC;
+  --coral: #8B1A1A;
   --amber: #C9A24A;
+
+  --bg: #D40000;
+  --bg-text: #FBF8F2;
+  --bg-text-soft: rgba(251,248,242,0.82);
+  --bg-text-mute: rgba(251,248,242,0.62);
+  --bg-line: rgba(251,248,242,0.22);
+  --bg-line-strong: rgba(251,248,242,0.42);
 
   --serif: "Instrument Serif", "Times New Roman", Georgia, serif;
   --sans: "Helvetica Neue", Helvetica, "Arial", sans-serif;
@@ -24,8 +31,8 @@
 html, body { margin: 0; padding: 0; }
 body {
   font-family: var(--sans);
-  color: var(--ink);
-  background: var(--cream);
+  color: var(--bg-text);
+  background: var(--bg);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-size: 14px;
@@ -37,7 +44,7 @@ input, textarea, select { font-family: inherit; }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 8px; border: 2px solid var(--cream); }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 8px; border: 2px solid var(--bg); }
 ::-webkit-scrollbar-thumb:hover { background: var(--ink-mute); }
 
 #root { min-height: 100vh; }
@@ -53,7 +60,7 @@ input, textarea, select { font-family: inherit; }
   min-height: 100vh;
   display: grid;
   grid-template-columns: 1.05fr 1fr;
-  background: var(--cream);
+  background: var(--bg);
 }
 .login-brand {
   background: var(--navy);
@@ -107,8 +114,8 @@ input, textarea, select { font-family: inherit; }
   justify-content: space-between;
   gap: 16px;
   padding: 20px 40px;
-  border-bottom: 1px solid var(--line);
-  background: var(--cream);
+  border-bottom: 1px solid var(--bg-line);
+  background: var(--bg);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -136,8 +143,8 @@ input, textarea, select { font-family: inherit; }
   align-items: center;
   justify-content: space-between;
   padding: 20px 40px;
-  border-bottom: 1px solid var(--line);
-  background: var(--cream);
+  border-bottom: 1px solid var(--bg-line);
+  background: var(--bg);
   position: sticky;
   top: 0;
   z-index: 5;

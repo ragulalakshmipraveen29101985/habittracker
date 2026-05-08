@@ -82,22 +82,25 @@ export function CreateTrackerModal({ onClose, onCreate }: Props) {
       </div>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
-        {ACCENT_OPTIONS.map((a) => (
-          <button key={a.id} onClick={() => setAccent(a.id)}
-            style={{
-              flex: 1, padding: "10px 12px", borderRadius: 10, cursor: "pointer",
-              background: accent === a.id ? a.color : "var(--cream)",
-              color: accent === a.id ? "#fff" : "var(--ink-soft)",
-              border: `1px solid ${accent === a.id ? a.color : "var(--line)"}`,
-              fontSize: 13, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
-            }}>
-            <span style={{
-              width: 10, height: 10, borderRadius: "50%",
-              background: accent === a.id ? "#fff" : a.color,
-            }} />
-            {a.label}
-          </button>
-        ))}
+        {ACCENT_OPTIONS.map((a) => {
+          const swatch = a.id === "sage" ? "var(--sage-deep)" : a.color;
+          return (
+            <button key={a.id} onClick={() => setAccent(a.id)}
+              style={{
+                flex: 1, padding: "10px 12px", borderRadius: 10, cursor: "pointer",
+                background: accent === a.id ? swatch : "var(--cream)",
+                color: accent === a.id ? "#fff" : "var(--ink-soft)",
+                border: `1px solid ${accent === a.id ? swatch : "var(--line)"}`,
+                fontSize: 13, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+              }}>
+              <span style={{
+                width: 10, height: 10, borderRadius: "50%",
+                background: accent === a.id ? "#fff" : swatch,
+              }} />
+              {a.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="mono" style={{

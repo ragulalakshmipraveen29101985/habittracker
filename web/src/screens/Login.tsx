@@ -145,14 +145,14 @@ export function Login() {
         >
           <p className="mono" style={{
             fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase",
-            color: "var(--ink-mute)", margin: 0,
+            color: "var(--bg-text-mute)", margin: 0,
           }}>
             {stepKicker}
           </p>
           <h2 className="serif" style={{ fontSize: 40, margin: "10px 0 6px", letterSpacing: "-0.02em" }}>
             {stepHeadline}
           </h2>
-          <p style={{ color: "var(--ink-soft)", margin: "0 0 28px", fontSize: 14.5 }}>
+          <p style={{ color: "var(--bg-text-soft)", margin: "0 0 28px", fontSize: 14.5 }}>
             {stepSub}
           </p>
 
@@ -253,7 +253,7 @@ export function Login() {
           )}
 
           {err && (
-            <div style={{ color: "var(--coral)", fontSize: 13, margin: "0 0 14px" }}>
+            <div style={{ color: "#FFE0E0", fontSize: 13, margin: "0 0 14px" }}>
               {err}
             </div>
           )}
@@ -277,7 +277,7 @@ export function Login() {
               onClick={() => { setStep("phone"); setCode(""); setDevOtp(null); setErr(null); }}
               style={{
                 marginTop: 16, background: "transparent", border: "none",
-                color: "var(--ink-soft)", fontSize: 13, cursor: "pointer", padding: 0,
+                color: "var(--bg-text-soft)", fontSize: 13, cursor: "pointer", padding: 0,
               }}
             >
               ← Use a different number
@@ -306,7 +306,7 @@ function Label({ children }: { children: React.ReactNode }) {
   return (
     <div className="mono" style={{
       fontSize: 10.5, letterSpacing: 1, textTransform: "uppercase",
-      color: "var(--ink-mute)", marginBottom: 6,
+      color: "var(--bg-text-mute)", marginBottom: 6,
     }}>{children}</div>
   );
 }

@@ -15,6 +15,7 @@ import {
 } from "../api/trackers";
 import { CreateTrackerModal } from "../modals/CreateTrackerModal";
 import { ProfileModal } from "../modals/ProfileModal";
+import { ThemeModal } from "../modals/ThemeModal";
 
 type CompletionsByTracker = Map<string, Map<string, Set<number>>>;
 
@@ -27,6 +28,7 @@ export function Dashboard() {
   const [showCreate, setShowCreate] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showTheme, setShowTheme] = useState(false);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -132,11 +134,11 @@ export function Dashboard() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--cream)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <header className="dash-header">
         <Logo size={20} />
-        <nav style={{ display: "flex", gap: 22, fontSize: 13.5, color: "var(--ink-soft)" }}>
-          <a href="#" onClick={(e) => e.preventDefault()} style={{ color: "var(--ink)", fontWeight: 500 }}>Trackers</a>
+        <nav style={{ display: "flex", gap: 22, fontSize: 13.5, color: "var(--bg-text-soft)" }}>
+          <a href="#" onClick={(e) => e.preventDefault()} style={{ color: "var(--bg-text)", fontWeight: 500 }}>Trackers</a>
         </nav>
         <div style={{ position: "relative" }}>
           <button
@@ -178,6 +180,11 @@ export function Dashboard() {
                   onClick={() => { setMenuOpen(false); setShowProfile(true); }}
                 />
                 <MenuItem
+                  icon="palette"
+                  label="Theme"
+                  onClick={() => { setMenuOpen(false); setShowTheme(true); }}
+                />
+                <MenuItem
                   icon="trash"
                   label="Archive"
                   onClick={() => { setMenuOpen(false); nav("/archive"); }}
@@ -197,13 +204,13 @@ export function Dashboard() {
       <div className="dash-content">
         <section className="dash-hero">
           <div>
-            <p className="mono" style={{ fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase", color: "var(--ink-mute)", margin: 0 }}>
+            <p className="mono" style={{ fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase", color: "var(--bg-text-mute)", margin: 0 }}>
               {today.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
             </p>
             <h1 className="serif" style={{ fontSize: 52, lineHeight: 1.05, margin: "10px 0 0", letterSpacing: "-0.02em" }}>
               Hello, <span className="it">{user?.name || "friend"}</span>.
             </h1>
-            <p style={{ color: "var(--ink-soft)", margin: "10px 0 0", fontSize: 15.5 }}>
+            <p style={{ color: "var(--bg-text-soft)", margin: "10px 0 0", fontSize: 15.5 }}>
               You've kept {stats.totalDone} ticks across {stats.count} tracker{stats.count === 1 ? "" : "s"} this month.
             </p>
           </div>
@@ -224,7 +231,7 @@ export function Dashboard() {
           </div>
 
           {loading ? (
-            <p style={{ color: "var(--ink-mute)" }}>Loading…</p>
+            <p style={{ color: "var(--bg-text-mute)" }}>Loading…</p>
           ) : (
             <div style={{
               display: "grid",
@@ -256,6 +263,7 @@ export function Dashboard() {
         />
       )}
       {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
+      {showTheme && <ThemeModal onClose={() => setShowTheme(false)} />}
     </div>
   );
 }
@@ -263,7 +271,7 @@ export function Dashboard() {
 function MenuItem({
   icon, label, onClick,
 }: {
-  icon: "settings" | "trash" | "logout";
+  icon: "settings" | "trash" | "logout" | "palette";
   label: string;
   onClick: () => void;
 }) {
@@ -290,13 +298,13 @@ function MenuItem({
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
     <div style={{ textAlign: "right" }}>
-      <div className="mono" style={{ fontSize: 10.5, color: "var(--ink-mute)", letterSpacing: 1, textTransform: "uppercase" }}>{label}</div>
+      <div className="mono" style={{ fontSize: 10.5, color: "var(--bg-text-mute)", letterSpacing: 1, textTransform: "uppercase" }}>{label}</div>
       <div className="serif" style={{ fontSize: 30, lineHeight: 1.1, marginTop: 2 }}>{value}</div>
     </div>
   );
 }
 
-function Divider() { return <div style={{ width: 1, height: 36, background: "var(--line-strong)" }} />; }
+function Divider() { return <div style={{ width: 1, height: 36, background: "var(--bg-line-strong)" }} />; }
 
 interface CardProps {
   tracker: Tracker;
@@ -319,7 +327,7 @@ function TrackerCard({ tracker, year, monthIdx, completedByHabit, onOpen, onDele
     for (let d = 1; d <= cap; d++) if (set.has(d)) done++;
   });
   const percent = pct(done, total);
-  const ac = accentColor(tracker.accent);
+  const ac = accentColor(tracker.accent, true);
 
   let bestName = "—", bestPct = -1;
   tracker.habits.forEach((h) => {
@@ -398,16 +406,16 @@ function CreateCard({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       style={{
         background: "transparent",
-        border: "1.5px dashed var(--line-strong)",
+        border: "1.5px dashed var(--bg-line-strong)",
         borderRadius: 14,
         padding: 22,
         minHeight: 240,
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10,
-        color: "var(--ink-soft)", cursor: "pointer",
+        color: "var(--bg-text-soft)", cursor: "pointer",
         transition: "all .15s ease",
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--ink)"; e.currentTarget.style.color = "var(--ink)"; }}
-      onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--line-strong)"; e.currentTarget.style.color = "var(--ink-soft)"; }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--bg-text)"; e.currentTarget.style.color = "var(--bg-text)"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--bg-line-strong)"; e.currentTarget.style.color = "var(--bg-text-soft)"; }}
     >
       <div style={{
         width: 44, height: 44, borderRadius: "50%",
@@ -416,7 +424,7 @@ function CreateCard({ onClick }: { onClick: () => void }) {
         <Icon name="plus" size={20} />
       </div>
       <div className="serif" style={{ fontSize: 20 }}>New tracker</div>
-      <div style={{ fontSize: 12.5, color: "var(--ink-mute)", maxWidth: 220, textAlign: "center" }}>
+      <div style={{ fontSize: 12.5, color: "var(--bg-text-mute)", maxWidth: 220, textAlign: "center" }}>
         Pick a name, list the habits you want to keep, and start ticking.
       </div>
     </button>

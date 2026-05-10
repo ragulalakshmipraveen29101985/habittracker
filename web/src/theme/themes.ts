@@ -35,7 +35,7 @@ export const THEMES: Theme[] = [
   { id: "blush",       label: "Blush",       bg: "#FCE7F3", accent: "#BE185D", mode: "light" },
 ];
 
-export const DEFAULT_THEME = THEMES[0];
+export const DEFAULT_THEME = THEMES.find((t) => t.id === "mint") ?? THEMES[0];
 
 export function findTheme(id: string | null | undefined): Theme {
   if (!id) return DEFAULT_THEME;

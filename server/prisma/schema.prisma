@@ -8,26 +8,14 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  phone     String    @unique
-  firstName String?
-  lastName  String?
-  email     String?
-  name      String?
-  createdAt DateTime  @default(now())
-  trackers  Tracker[]
-}
-
-model OtpCode {
-  id         String    @id @default(uuid())
-  phone      String
-  codeHash   String
-  expiresAt  DateTime
-  consumedAt DateTime?
-  attempts   Int       @default(0)
-  createdAt  DateTime  @default(now())
-
-  @@index([phone, expiresAt])
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  firstName    String
+  lastName     String?
+  name         String?
+  createdAt    DateTime  @default(now())
+  trackers     Tracker[]
 }
 
 model Tracker {

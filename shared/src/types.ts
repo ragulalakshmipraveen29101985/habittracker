@@ -2,10 +2,9 @@ import type { AccentName } from "./tokens";
 
 export interface User {
   id: string;
-  phone: string;
-  firstName: string | null;
+  email: string;
+  firstName: string;
   lastName: string | null;
-  email: string | null;
   name: string | null;
   createdAt: string;
 }
@@ -42,11 +41,11 @@ export interface Completion {
 }
 
 // Request bodies / responses
-export interface RequestOtpBody { phone: string }
-export interface RequestOtpResponse { ok: true; devOtp?: string }
+export interface SignupBody { email: string; password: string; firstName: string }
+export interface SignupResponse { token: string; user: User }
 
-export interface VerifyOtpBody { phone: string; code: string }
-export interface VerifyOtpResponse { token: string; user: User; needsProfile: boolean }
+export interface LoginBody { email: string; password: string }
+export interface LoginResponse { token: string; user: User }
 
 export interface UpdateProfileBody { firstName: string; lastName: string; email: string }
 export interface UpdateProfileResponse { user: User }

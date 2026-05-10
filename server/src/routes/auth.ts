@@ -1,63 +1,84 @@
 import { Router } from "express";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
-import { createOtp, verifyOtp } from "../auth/otp.js";
-import { sendSms } from "../auth/sms.js";
 import { signToken } from "../auth/jwt.js";
-import { env } from "../env.js";
 import { requireUser } from "../auth/middleware.js";
 import { seedTrackersForUser } from "../sampleSeed.js";
 
 export const authRouter = Router();
 
-const phoneSchema = z
-  .string()
-  .trim()
-  .regex(/^\+?[1-9]\d{6,15}$/, "Invalid phone number");
+const stripPassword = <T extends { passwordHash?: string }>(u: T) => {
+  const { passwordHash, ...rest } = u;
+  return rest;
+};
 
-authRouter.post("/request-otp", async (req, res, next) => {
+const emailSchema = z.string().trim().toLowerCase().email().max(160);
+const passwordSchema = z.string().min(8).max(128);
+const firstNameSchema = z.string().trim().min(1).max(60);
+
+authRouter.post("/signup", async (req, res, next) => {
   try {
-    const { phone } = z.object({ phone: phoneSchema }).parse(req.body);
-    const normalized = phone.startsWith("+") ? phone : `+${phone}`;
-    const { code } = await createOtp(normalized);
-    await sendSms(normalized, code);
-    res.json({ ok: true, ...(env.isDev ? { devOtp: code } : {}) });
+    const { email, password, firstName } = z
+      .object({
+        email: emailSchema,
+        password: passwordSchema,
+        firstName: firstNameSchema,
+      })
+      .parse(req.body);
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    let user;
+    try {
+      user = await prisma.user.create({
+        data: { email, passwordHash, firstName, name: firstName },
+      });
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === "P2002"
+      ) {
+        res.status(409).json({ error: "Account already exists" });
+        return;
+      }
+      throw e;
+    }
+
+    try {
+      await seedTrackersForUser(user.id);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn("[seed] failed for new user:", e);
+    }
+
+    const token = signToken({ uid: user.id });
+    res.json({ token, user: stripPassword(user) });
   } catch (err) {
     next(err);
   }
 });
 
-authRouter.post("/verify-otp", async (req, res, next) => {
+authRouter.post("/login", async (req, res, next) => {
   try {
-    const { phone, code } = z
-      .object({
-        phone: phoneSchema,
-        code: z.string().regex(/^\d{6}$/, "OTP must be 6 digits"),
-      })
+    const { email, password } = z
+      .object({ email: emailSchema, password: z.string().min(1).max(128) })
       .parse(req.body);
-    const normalized = phone.startsWith("+") ? phone : `+${phone}`;
-    const ok = await verifyOtp(normalized, code);
-    if (!ok) {
-      res.status(401).json({ error: "Invalid or expired code" });
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      res.status(401).json({ error: "Invalid email or password" });
       return;
     }
-    let user = await prisma.user.findUnique({ where: { phone: normalized } });
-    let isNewUser = false;
-    if (!user) {
-      user = await prisma.user.create({ data: { phone: normalized } });
-      isNewUser = true;
+    const ok = await bcrypt.compare(password, user.passwordHash);
+    if (!ok) {
+      res.status(401).json({ error: "Invalid email or password" });
+      return;
     }
-    if (isNewUser) {
-      try {
-        await seedTrackersForUser(user.id);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn("[seed] failed for new user:", e);
-      }
-    }
+
     const token = signToken({ uid: user.id });
-    const needsProfile = user.firstName === null;
-    res.json({ token, user, needsProfile });
+    res.json({ token, user: stripPassword(user) });
   } catch (err) {
     next(err);
   }
@@ -70,7 +91,7 @@ authRouter.get("/me", requireUser, async (req, res, next) => {
       res.status(404).json({ error: "User not found" });
       return;
     }
-    res.json({ user });
+    res.json({ user: stripPassword(user) });
   } catch (err) {
     next(err);
   }
@@ -82,7 +103,7 @@ authRouter.patch("/me", requireUser, async (req, res, next) => {
       .object({
         firstName: z.string().trim().min(1).max(40),
         lastName: z.string().trim().min(1).max(40),
-        email: z.string().trim().email().max(120),
+        email: emailSchema,
       })
       .parse(req.body);
     const user = await prisma.user.update({
@@ -91,11 +112,10 @@ authRouter.patch("/me", requireUser, async (req, res, next) => {
         firstName,
         lastName,
         email,
-        // Maintain `name` for read-compat in places that still consume it.
         name: `${firstName} ${lastName}`,
       },
     });
-    res.json({ user });
+    res.json({ user: stripPassword(user) });
   } catch (err) {
     next(err);
   }

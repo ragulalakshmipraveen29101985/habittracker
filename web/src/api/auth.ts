@@ -1,22 +1,24 @@
 import type {
-  RequestOtpResponse,
-  VerifyOtpResponse,
+  SignupBody,
+  SignupResponse,
+  LoginBody,
+  LoginResponse,
   UpdateProfileBody,
   UpdateProfileResponse,
   User,
 } from "@streak/shared";
 import { api } from "./client";
 
-export const requestOtp = (phone: string) =>
-  api<RequestOtpResponse>("/auth/request-otp", {
+export const signup = (body: SignupBody) =>
+  api<SignupResponse>("/auth/signup", {
     method: "POST",
-    body: JSON.stringify({ phone }),
+    body: JSON.stringify(body),
   });
 
-export const verifyOtp = (phone: string, code: string) =>
-  api<VerifyOtpResponse>("/auth/verify-otp", {
+export const login = (body: LoginBody) =>
+  api<LoginResponse>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({ phone, code }),
+    body: JSON.stringify(body),
   });
 
 export const fetchMe = () => api<{ user: User }>("/auth/me");

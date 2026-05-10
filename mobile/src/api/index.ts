@@ -1,5 +1,5 @@
 import type {
-  RequestOtpResponse, VerifyOtpResponse, User,
+  SignupBody, SignupResponse, LoginBody, LoginResponse, User,
   Tracker, Habit, CreateTrackerBody, Completion,
   ToggleCompletionResponse, AccentName,
   UpdateProfileBody, UpdateProfileResponse,
@@ -7,15 +7,14 @@ import type {
 } from "@streak/shared";
 import { api } from "./client";
 
-export const requestOtp = (phone: string) =>
-  api<RequestOtpResponse>("/auth/request-otp", {
-    method: "POST", body: JSON.stringify({ phone }),
+export const signup = (body: SignupBody) =>
+  api<SignupResponse>("/auth/signup", {
+    method: "POST", body: JSON.stringify(body),
   });
 
-export const verifyOtp = (phone: string, code: string) =>
-  api<VerifyOtpResponse>("/auth/verify-otp", {
-    method: "POST",
-    body: JSON.stringify({ phone, code }),
+export const login = (body: LoginBody) =>
+  api<LoginResponse>("/auth/login", {
+    method: "POST", body: JSON.stringify(body),
   });
 
 export const fetchMe = () => api<{ user: User }>("/auth/me");

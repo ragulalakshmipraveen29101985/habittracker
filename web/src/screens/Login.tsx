@@ -1,256 +1,124 @@
 import { useState, type CSSProperties } from "react";
-import type { User } from "@streak/shared";
 import { Button } from "../components/Button";
 import { Icon } from "../components/Icon";
 import { useAuth } from "../state/AuthContext";
-import { requestOtp, verifyOtp, updateProfile } from "../api/auth";
-import { ApiError, setToken } from "../api/client";
+import { signup, login } from "../api/auth";
+import { ApiError } from "../api/client";
 
-type Step = "phone" | "otp" | "profile";
-
-const COUNTRY_CODES = [
-  { code: "+91", flag: "🇮🇳", name: "India" },
-  { code: "+1", flag: "🇺🇸", name: "USA" },
-  { code: "+44", flag: "🇬🇧", name: "UK" },
-  { code: "+61", flag: "🇦🇺", name: "Australia" },
-  { code: "+971", flag: "🇦🇪", name: "UAE" },
-];
+type Mode = "login" | "signup";
 
 export function Login() {
   const { setSession } = useAuth();
-  const [step, setStep] = useState<Step>("phone");
-  const [country, setCountry] = useState("+91");
-  const [phone, setPhone] = useState("");
-  const [code, setCode] = useState("");
-  const [devOtp, setDevOtp] = useState<string | null>(null);
+  const [mode, setMode] = useState<Mode>("login");
+  const [firstName, setFirstName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  // Profile-step state (used after first-time OTP verify when needsProfile=true)
-  const [pendingToken, setPendingToken] = useState<string | null>(null);
-  const [pendingUser, setPendingUser] = useState<User | null>(null);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-
-  const fullPhone = `${country}${phone.replace(/\D/g, "")}`;
-
-  const onSendOtp = async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setErr(null);
-    if (phone.replace(/\D/g, "").length < 6) {
-      setErr("Enter a valid phone number");
-      return;
-    }
-    setBusy(true);
-    try {
-      const r = await requestOtp(fullPhone);
-      setDevOtp(r.devOtp ?? null);
-      setStep("otp");
-    } catch (e2) {
-      setErr(e2 instanceof Error ? e2.message : "Failed to send OTP");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const onVerify = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    setErr(null);
-    if (!/^\d{6}$/.test(code)) {
-      setErr("OTP must be 6 digits");
-      return;
-    }
-    setBusy(true);
-    try {
-      const r = await verifyOtp(fullPhone, code);
-      if (r.needsProfile) {
-        // Stash token so the upcoming PATCH /auth/me is authenticated, but
-        // don't put the user into the AuthContext yet — we want the Login
-        // screen to keep rendering until profile is complete.
-        setToken(r.token);
-        setPendingToken(r.token);
-        setPendingUser(r.user);
-        setStep("profile");
-      } else {
-        setSession(r.token, r.user);
-      }
-    } catch (e2) {
-      setErr(
-        e2 instanceof ApiError && e2.status === 401
-          ? "Invalid or expired code"
-          : e2 instanceof Error ? e2.message : "Verification failed",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const onSaveProfile = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    setErr(null);
-    if (!firstName.trim()) { setErr("First name is required"); return; }
-    if (!lastName.trim())  { setErr("Last name is required"); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    const trimmedEmail = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
       setErr("Enter a valid email address");
       return;
     }
-    if (!pendingToken) { setErr("Session lost — please sign in again"); setStep("phone"); return; }
+    if (password.length < 8) {
+      setErr("Password must be at least 8 characters");
+      return;
+    }
+    if (mode === "signup" && !firstName.trim()) {
+      setErr("First name is required");
+      return;
+    }
     setBusy(true);
     try {
-      const { user } = await updateProfile({
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        email: email.trim(),
-      });
-      setSession(pendingToken, user);
+      const r = mode === "signup"
+        ? await signup({ email: trimmedEmail, password, firstName: firstName.trim() })
+        : await login({ email: trimmedEmail, password });
+      setSession(r.token, r.user);
     } catch (e2) {
-      setErr(e2 instanceof Error ? e2.message : "Could not save profile");
+      if (e2 instanceof ApiError) {
+        setErr(e2.message || (mode === "login" ? "Invalid email or password" : "Could not sign up"));
+      } else {
+        setErr(e2 instanceof Error ? e2.message : "Something went wrong");
+      }
     } finally {
       setBusy(false);
     }
   };
 
-  const onSubmit = (e: React.FormEvent) => {
-    if (step === "phone") return onSendOtp(e);
-    if (step === "otp") return onVerify(e);
-    return onSaveProfile(e);
+  const switchMode = (m: Mode) => {
+    setMode(m);
+    setErr(null);
   };
 
-  const stepKicker =
-    step === "phone" ? "Sign in" :
-    step === "otp"   ? "Enter code" :
-                       "About you";
-  const stepHeadline =
-    step === "phone" ? <>Welcome to <span className="it">Streak</span>.</> :
-    step === "otp"   ? <>Check your <span className="it">phone</span>.</> :
-                       <>One <span className="it">quick</span> thing.</>;
-  const stepSub =
-    step === "phone" ? "Enter your phone number. We'll send you a one-time code." :
-    step === "otp"   ? `We sent a 6-digit code to ${fullPhone}.` :
-                       "Tell us a little about yourself. We only ask once.";
-  const submitLabel =
-    step === "phone" ? "Send OTP" :
-    step === "otp"   ? "Verify & continue" :
-                       "Continue";
+  const headline = mode === "login"
+    ? <>Welcome to <span className="it">Streak</span>.</>
+    : <>Start your <span className="it">streak</span>.</>;
+  const sub = mode === "login"
+    ? "Log in with your email and password."
+    : "Create an account in a few seconds.";
+  const submitLabel = mode === "login" ? "Log in" : "Create account";
 
   return (
     <div className="login-shell">
       <BrandPanel />
 
       <main className="login-form-pane">
-        <form
-          onSubmit={onSubmit}
-          style={{ width: "min(420px, 100%)" }}
-        >
+        <form onSubmit={onSubmit} style={{ width: "min(420px, 100%)" }}>
           <p className="mono" style={{
             fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase",
             color: "var(--bg-text-mute)", margin: 0,
           }}>
-            {stepKicker}
+            {mode === "login" ? "Log in" : "Sign up"}
           </p>
           <h2 className="serif" style={{ fontSize: 40, margin: "10px 0 6px", letterSpacing: "-0.02em" }}>
-            {stepHeadline}
+            {headline}
           </h2>
           <p style={{ color: "var(--bg-text-soft)", margin: "0 0 28px", fontSize: 14.5 }}>
-            {stepSub}
+            {sub}
           </p>
 
-          {step === "phone" && (
+          {mode === "signup" && (
             <div style={{ marginBottom: 16 }}>
-              <Label>Phone number</Label>
-              <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 8 }}>
-                <select
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  style={{ ...fieldStyle, paddingRight: 28, cursor: "pointer", minWidth: 100 }}
-                >
-                  {COUNTRY_CODES.map((c) => (
-                    <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
-                  ))}
-                </select>
-                <input
-                  autoFocus
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="9876543210"
-                  inputMode="numeric"
-                  style={fieldStyle}
-                />
-              </div>
+              <Label>First name</Label>
+              <input
+                autoFocus
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="e.g. Praveen"
+                style={fieldStyle}
+              />
             </div>
           )}
 
-          {step === "otp" && (
-            <>
-              {devOtp && (
-                <div style={{
-                  marginBottom: 12, padding: "8px 12px", borderRadius: 8,
-                  background: "var(--sage-soft)", color: "var(--sage-deep)",
-                  fontFamily: "var(--mono)", fontSize: 12, letterSpacing: 0.4,
-                }}>
-                  DEV OTP: <span style={{ fontWeight: 500, fontSize: 14 }}>{devOtp}</span>
-                  <button
-                    type="button"
-                    onClick={() => setCode(devOtp)}
-                    style={{
-                      marginLeft: 10, background: "transparent", border: "none",
-                      color: "var(--sage-deep)", textDecoration: "underline", cursor: "pointer",
-                      font: "inherit",
-                    }}
-                  >fill</button>
-                </div>
-              )}
-              <div style={{ marginBottom: 16 }}>
-                <Label>6-digit code</Label>
-                <input
-                  autoFocus
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  placeholder="• • • • • •"
-                  inputMode="numeric"
-                  maxLength={6}
-                  style={{ ...fieldStyle, fontFamily: "var(--mono)", fontSize: 18, letterSpacing: 6, textAlign: "center" }}
-                />
-              </div>
-            </>
-          )}
+          <div style={{ marginBottom: 16 }}>
+            <Label>Email</Label>
+            <input
+              autoFocus={mode === "login"}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              style={fieldStyle}
+            />
+          </div>
 
-          {step === "profile" && (
-            <>
-              <div style={{ marginBottom: 16 }}>
-                <Label>First name</Label>
-                <input
-                  autoFocus
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="e.g. Praveen"
-                  style={fieldStyle}
-                />
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <Label>Last name</Label>
-                <input
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="e.g. Ragula"
-                  style={fieldStyle}
-                />
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <Label>Email</Label>
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  type="email"
-                  inputMode="email"
-                  autoComplete="email"
-                  style={fieldStyle}
-                />
-              </div>
-            </>
-          )}
+          <div style={{ marginBottom: 16 }}>
+            <Label>Password</Label>
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={mode === "signup" ? "Min 8 characters" : "Your password"}
+              type="password"
+              autoComplete={mode === "signup" ? "new-password" : "current-password"}
+              style={fieldStyle}
+            />
+          </div>
 
           {err && (
             <div style={{ color: "#FFE0E0", fontSize: 13, margin: "0 0 14px" }}>
@@ -271,19 +139,31 @@ export function Login() {
             <Icon name="chev" size={14} />
           </Button>
 
-          {step === "otp" && (
-            <button
-              type="button"
-              onClick={() => { setStep("phone"); setCode(""); setDevOtp(null); setErr(null); }}
-              style={{
-                marginTop: 16, background: "transparent", border: "none",
-                color: "var(--bg-text-soft)", fontSize: 13, cursor: "pointer", padding: 0,
-              }}
-            >
-              ← Use a different number
-            </button>
-          )}
-
+          <div style={{ marginTop: 16, fontSize: 13, color: "var(--bg-text-soft)" }}>
+            {mode === "login" ? (
+              <>
+                New here?{" "}
+                <button
+                  type="button"
+                  onClick={() => switchMode("signup")}
+                  style={linkStyle}
+                >
+                  Create an account
+                </button>
+              </>
+            ) : (
+              <>
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => switchMode("login")}
+                  style={linkStyle}
+                >
+                  Log in
+                </button>
+              </>
+            )}
+          </div>
         </form>
       </main>
     </div>
@@ -300,6 +180,12 @@ const fieldStyle: CSSProperties = {
   outline: "none",
   color: "var(--ink)",
   transition: "border-color .15s ease",
+};
+
+const linkStyle: CSSProperties = {
+  background: "transparent", border: "none",
+  color: "var(--bg-text)", textDecoration: "underline",
+  cursor: "pointer", padding: 0, font: "inherit",
 };
 
 function Label({ children }: { children: React.ReactNode }) {

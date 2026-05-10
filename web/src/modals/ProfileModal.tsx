@@ -60,15 +60,15 @@ export function ProfileModal({ onClose }: Props) {
         </div>
 
         <p style={{ color: "var(--ink-soft)", margin: "6px 0 18px", fontSize: 14 }}>
-          Change your name or email. Your phone number stays the same.
+          Change your name or email.
         </p>
 
-        <Label>Phone (read-only)</Label>
+        <Label>Email (read-only)</Label>
         <div style={{
           ...fieldStyle, color: "var(--ink-mute)", fontFamily: "var(--mono)",
           background: "var(--cream-2)", marginBottom: 16,
         }}>
-          {user?.phone ?? "—"}
+          {user?.email ?? "—"}
         </div>
 
         <Label>First name</Label>

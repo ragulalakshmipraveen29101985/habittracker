@@ -30,8 +30,8 @@ export function DashboardScreen({ navigation }: Props) {
   const [refreshing, setRefreshing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const initial = ((user?.firstName || user?.name || user?.phone) ?? "·")
-    .charAt(user?.firstName || user?.name ? 0 : 1)
+  const initial = ((user?.firstName || user?.name || user?.email) ?? "·")
+    .charAt(0)
     .toUpperCase();
 
   const today = new Date();

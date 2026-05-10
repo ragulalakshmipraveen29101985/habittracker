@@ -153,8 +153,8 @@ export function Dashboard() {
               fontSize: 13, fontWeight: 500, border: "none", cursor: "pointer",
             }}
           >
-            {((user?.firstName || user?.name || user?.phone) ?? "·")
-              .charAt(user?.firstName || user?.name ? 0 : 1)
+            {((user?.firstName || user?.name || user?.email) ?? "·")
+              .charAt(0)
               .toUpperCase()}
           </button>
           {menuOpen && (

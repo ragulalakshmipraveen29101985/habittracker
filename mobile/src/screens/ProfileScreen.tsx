@@ -71,13 +71,13 @@ export function ProfileScreen({ navigation }: Props) {
             Edit your details.
           </Text>
           <Text style={{ color: colors.inkSoft, marginBottom: 18, fontSize: 14 }}>
-            Change your name or email. Your phone number stays the same.
+            Change your name or email.
           </Text>
 
-          <Label>Phone (read-only)</Label>
+          <Label>Email (read-only)</Label>
           <View style={[fieldStyle, { backgroundColor: colors.cream2 }]}>
             <Text style={{ color: colors.inkMute, fontFamily: fonts.mono, fontSize: 14 }}>
-              {user?.phone ?? "—"}
+              {user?.email ?? "—"}
             </Text>
           </View>
 

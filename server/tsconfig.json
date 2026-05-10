@@ -12,5 +12,5 @@
     "forceConsistentCasingInFileNames": true,
     "allowImportingTsExtensions": false
   },
-  "include": ["src/**/*", "prisma/**/*"]
+  "include": ["src/**/*"]
 }
